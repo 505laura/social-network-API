@@ -5,15 +5,23 @@
     "main": "index.js",
     "license": "MIT",
     "scripts": {
-        "start": "node index",
-        "dev": "nodemon index"
+      "start": "node index",
+      "dev": "nodemon index",
+      "seed": "node utils/seed",
+      "heroku-postbuild": "node utils/seed.js",
+      "test": "jest --watchAll --maxWorkers=1 --verbose"
     },
     "dependencies": {
-        "express": "^4.17.1",
-        "mongoose": "^6.0.13",
-        "validator": "^13.9.0"
+      "express": "^4.17.1",
+      "mongoose": "^6.0.13",
+      "validator": "^13.7.0"
     },
     "devDependencies": {
-        "nodemon": "^2.0.9"
+      "@types/axios": "^0.14.0",
+      "@types/jest": "^29.4.0",
+      "axios": "^1.3.1",
+      "jest": "^29.4.1",
+      "nodemon": "^2.0.9"
     }
-}
+  }
+  
