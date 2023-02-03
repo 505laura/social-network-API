@@ -1,4 +1,5 @@
-const {User} = require('../models');
+const { default: mongoose } = require('mongoose');
+const { User, Thought } = require('../models');
 
 const {NotFoundError, HTTPError} = require('../utils/errors');
 
@@ -20,6 +21,7 @@ const getUsers = async({query}) => {
     return {users};
 }
 
+
 const createUser = async(req) => {
     try {
         const [user] = await User.create([req.body]);
@@ -36,7 +38,58 @@ const createUser = async(req) => {
     }
 };
 
+const updateUser = async(req) => {
+    const user = await User.findOneAndUpdate({ _id: req.query.userId }, req.body, { new: true });
+    if (!user) {
+        throw new NotFoundError(USER_NOT_FOUND);
+    }
+    return {user};
+};
+
+const deleteUser = async(req) => {
+    const user = await User.findOneAndRemove({ _id: req.query.userId })
+    if(!user) { throw new NotFoundError(USER_NOT_FOUND); }
+    await Thought.deleteMany({ username: user.username });
+    return 'User deleted';
+}
+
+const addFriend = async(req) => {
+    const friend = await User.findOne({ _id: req.query.friendId });
+    if(!friend) {
+        throw new NotFoundError('No friend found with that ID :(');
+    }
+    const user = await User.findOneAndUpdate({ _id: req.params.userId }, { $addToSet: { friends: req.query.friendId } }, { runValidators: true, new: true });
+    if(!user) {
+        throw new NotFoundError(USER_NOT_FOUND);
+    }
+    await User.findOneAndUpdate({ _id: req.query.friendId },{ $addToSet: { friends: req.params.userId } },{ runValidators: true, new: true });
+    return 'Friend added! :)';
+};
+
+const removeFriend = async(req) => {
+    const friend = await User.findOne({ _id: req.query.friendId });
+    if(!friend) {
+        throw new NotFoundError('No friend found with that ID :(');
+    }
+    if(!friend.friends.includes(req.params.userId)) {
+        throw new NotFoundError('You are not friend with that user! :(');
+    }
+    const user = await User.findOneAndUpdate({ _id: req.params.userId }, { $pull: { friends: req.query.friendId } }, { runValidators: true, new: false });
+    
+    if(!user) {
+        throw new NotFoundError(USER_NOT_FOUND);
+    }
+    
+    await User.findOneAndUpdate({ _id: req.query.friendId },{ $pull: { friends: req.params.userId } },{ runValidators: true, new: true });
+    
+    return 'Friend removed! :(';
+};
+
 module.exports = {
     getUsers,
-    createUser
+    createUser,
+    updateUser,
+    deleteUser,
+    addFriend,
+    removeFriend
 }            
