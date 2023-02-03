@@ -1,6 +1,6 @@
 const {User} = require('../models');
 
-const {NotFoundError} = require('../utils/errors');
+const {NotFoundError, HTTPError} = require('../utils/errors');
 
 const USER_NOT_FOUND = 'No user found with that ID :(';
 
@@ -20,6 +20,23 @@ const getUsers = async({query}) => {
     return {users};
 }
 
+const createUser = async(req) => {
+    try {
+        const [user] = await User.create([req.body]);
+        return {user};
+    }
+    catch (err) {
+        if(err.code === 11000) {
+            throw new HTTPError('Username or email already exists', 400);
+        }
+        if(err instanceof mongoose.Error.ValidationError) {
+            throw new HTTPError(err.message, 400);
+        }
+        throw err;
+    }
+};
+
 module.exports = {
-    getUsers
+    getUsers,
+    createUser
 }            
