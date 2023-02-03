@@ -6,7 +6,7 @@ const {
   updateUser,
   addFriend,
   removeFriend,
-} = require('../../controllers/userController');
+} = require('../../controllers/user');
 
 const { genericController } = require('../../utils/controller');
 

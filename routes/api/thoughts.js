@@ -6,7 +6,7 @@ const {
   deleteThought,
   addReaction,
   deleteReaction
-} = require('../../controllers/thoughtController');
+} = require('../../controllers/thought');
 
 const {genericController} = require('../../utils/controller');
 
